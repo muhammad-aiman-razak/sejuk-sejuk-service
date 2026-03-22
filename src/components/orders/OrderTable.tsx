@@ -1,14 +1,16 @@
 import Link from "next/link";
-import type { OrderDetails } from "@/types";
+import type { OrderDetails, Technician } from "@/types";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
+import { AssignTechnicianDialog } from "./AssignTechnicianDialog";
 import { formatDate } from "@/lib/utils";
 
 interface OrderTableProps {
   orders: OrderDetails[];
+  technicians?: Technician[];
 }
 
-export function OrderTable({ orders }: OrderTableProps) {
+export function OrderTable({ orders, technicians }: OrderTableProps) {
   if (orders.length === 0) {
     return (
       <div className="py-12 text-center">
@@ -58,8 +60,15 @@ export function OrderTable({ orders }: OrderTableProps) {
                     {order.service_type}
                   </td>
                   <td className="px-4 py-3 text-gray-700">
-                    {order.technician_name ?? (
-                      <span className="text-gray-400">Unassigned</span>
+                    {order.status === "new" && technicians ? (
+                      <AssignTechnicianDialog
+                        orderId={order.id}
+                        technicians={technicians}
+                      />
+                    ) : (
+                      order.technician_name ?? (
+                        <span className="text-gray-400">Unassigned</span>
+                      )
                     )}
                   </td>
                   <td className="px-4 py-3">
@@ -97,6 +106,14 @@ export function OrderTable({ orders }: OrderTableProps) {
               <span>{order.service_type}</span>
               <span>{order.technician_name ?? "Unassigned"}</span>
             </div>
+            {order.status === "new" && technicians && (
+              <div className="mt-2">
+                <AssignTechnicianDialog
+                  orderId={order.id}
+                  technicians={technicians}
+                />
+              </div>
+            )}
             <div className="mt-1 text-xs text-gray-400">
               {order.scheduled_at
                 ? formatDate(order.scheduled_at)
