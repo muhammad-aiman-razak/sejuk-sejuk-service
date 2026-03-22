@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -17,7 +17,7 @@ import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { FileUploader } from "./FileUploader";
 import type { OrderDetails } from "@/types";
-import { ArrowLeft, CheckCircle, Clock, Play } from "lucide-react";
+import { ArrowLeft, CheckCircle, Clock, Play, MessageCircle } from "lucide-react";
 
 interface ServiceReportFormProps {
   order: OrderDetails;
@@ -62,9 +62,42 @@ export function ServiceReportForm({ order }: ServiceReportFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isStartingJob, setIsStartingJob] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [whatsAppUrl, setWhatsAppUrl] = useState<string | null>(null);
 
   const extraCharges = Number(formData.extraCharges) || 0;
   const finalAmount = order.quoted_price + extraCharges;
+
+  async function fetchWhatsAppLink() {
+    try {
+      const res = await fetch("/api/whatsapp/notify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId: order.id }),
+      });
+      if (res.ok) {
+        const json = await res.json();
+        setWhatsAppUrl(json.data.url);
+      }
+    } catch {
+      // Non-critical — button just won't appear
+    }
+  }
+
+  // Fetch WhatsApp link when viewing a completed job
+  useEffect(() => {
+    if (order.status === "job_done") {
+      fetch("/api/whatsapp/notify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId: order.id }),
+      })
+        .then((res) => (res.ok ? res.json() : null))
+        .then((json) => {
+          if (json?.data?.url) setWhatsAppUrl(json.data.url);
+        })
+        .catch(() => {});
+    }
+  }, [order.status, order.id]);
 
   function handleChange(field: string, value: string | number) {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -160,6 +193,7 @@ export function ServiceReportForm({ order }: ServiceReportFormProps) {
       if (result.success) {
         setIsSuccess(true);
         toast.success("Service report submitted");
+        fetchWhatsAppLink();
       } else {
         toast.error(result.error);
       }
@@ -278,7 +312,17 @@ export function ServiceReportForm({ order }: ServiceReportFormProps) {
           <p className="mt-4 text-sm text-gray-500">
             Waiting for manager review.
           </p>
-          {/* WhatsApp button placeholder — Phase 4 */}
+          {whatsAppUrl && (
+            <a
+              href={whatsAppUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-md bg-green-600 px-4 py-3 text-base font-medium text-white transition-colors hover:bg-green-700"
+            >
+              <MessageCircle className="h-5 w-5" />
+              Send WhatsApp Notification
+            </a>
+          )}
         </Card>
       </div>
     );
@@ -310,7 +354,17 @@ export function ServiceReportForm({ order }: ServiceReportFormProps) {
           <p className="mt-4 text-sm text-gray-500">
             Waiting for manager review.
           </p>
-          {/* WhatsApp button placeholder — Phase 4 */}
+          {whatsAppUrl && (
+            <a
+              href={whatsAppUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-md bg-green-600 px-4 py-3 text-base font-medium text-white transition-colors hover:bg-green-700"
+            >
+              <MessageCircle className="h-5 w-5" />
+              Send WhatsApp Notification
+            </a>
+          )}
         </Card>
         <Link href="/technician" className="mt-4 block">
           <Button variant="secondary" className="w-full py-3" size="lg">
