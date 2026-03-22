@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { toMytStartOfDay, toMytEndOfDay } from "@/lib/utils";
 import type { AiToolName } from "./tools";
 
 type Args = Record<string, unknown>;
@@ -38,10 +39,10 @@ async function getJobsByTechnician(args: Args): Promise<ExecutorResult> {
   // Use completed_at for completed jobs, created_at for others
   const dateCol = completed ? "completed_at" : "created_at";
   if (args.dateFrom) {
-    query = query.gte(dateCol, String(args.dateFrom));
+    query = query.gte(dateCol, toMytStartOfDay(String(args.dateFrom)));
   }
   if (args.dateTo) {
-    query = query.lte(dateCol, String(args.dateTo) + "T23:59:59");
+    query = query.lte(dateCol, toMytEndOfDay(String(args.dateTo)));
   }
 
   const { data, error } = await query.order(dateCol, {
@@ -81,10 +82,10 @@ async function getJobCount(args: Args): Promise<ExecutorResult> {
   // Use completed_at for completed jobs, created_at for others
   const dateCol = completed ? "completed_at" : "created_at";
   if (args.dateFrom) {
-    query = query.gte(dateCol, String(args.dateFrom));
+    query = query.gte(dateCol, toMytStartOfDay(String(args.dateFrom)));
   }
   if (args.dateTo) {
-    query = query.lte(dateCol, String(args.dateTo) + "T23:59:59");
+    query = query.lte(dateCol, toMytEndOfDay(String(args.dateTo)));
   }
 
   const { count, error } = await query;

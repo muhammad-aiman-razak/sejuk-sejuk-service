@@ -75,6 +75,41 @@ export function getFileType(mimeType: string): FileType {
   return "photo"; // fallback for unknown types
 }
 
+// ---- Timezone helpers (Malaysia Time, UTC+8) ----
+
+const MYT_TIMEZONE = "Asia/Kuala_Lumpur";
+const MYT_OFFSET = "+08:00";
+
+/** Gets today's date in Malaysia Time as YYYY-MM-DD. */
+export function getTodayMyt(): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: MYT_TIMEZONE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
+}
+
+/** Gets current time in Malaysia Time as HH:MM. */
+export function getCurrentTimeMyt(): string {
+  return new Intl.DateTimeFormat("en-GB", {
+    timeZone: MYT_TIMEZONE,
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(new Date());
+}
+
+/** Converts a date string (YYYY-MM-DD) to MYT start of day for DB queries. */
+export function toMytStartOfDay(dateStr: string): string {
+  return `${dateStr}T00:00:00${MYT_OFFSET}`;
+}
+
+/** Converts a date string (YYYY-MM-DD) to MYT end of day for DB queries. */
+export function toMytEndOfDay(dateStr: string): string {
+  return `${dateStr}T23:59:59${MYT_OFFSET}`;
+}
+
 /** Generates a WhatsApp deep-link URL with a pre-filled message. */
 export function generateWhatsAppLink(
   phone: string,
