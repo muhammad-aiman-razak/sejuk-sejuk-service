@@ -1,6 +1,7 @@
 import { createServerClient } from "@/lib/supabase/server";
 import { OrderForm } from "@/components/orders/OrderForm";
-import type { ServiceType, Technician } from "@/types";
+import { parseServiceType } from "@/lib/parsers";
+import type { Technician } from "@/types";
 
 export default async function NewOrderPage() {
   const supabase = await createServerClient();
@@ -14,7 +15,7 @@ export default async function NewOrderPage() {
       .order("name"),
   ]);
 
-  const serviceTypes: ServiceType[] = serviceTypesResult.data ?? [];
+  const serviceTypes = (serviceTypesResult.data ?? []).map(parseServiceType);
   const technicians: Technician[] = techniciansResult.data ?? [];
 
   return (

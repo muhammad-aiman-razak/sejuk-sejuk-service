@@ -65,6 +65,16 @@ export function getStatusLabel(status: OrderStatus): string {
   return labels[status];
 }
 
+import type { FileType } from "@/types";
+
+/** Maps a MIME type to the database file_type enum. */
+export function getFileType(mimeType: string): FileType {
+  if (mimeType.startsWith("image/")) return "photo";
+  if (mimeType.startsWith("video/")) return "video";
+  if (mimeType === "application/pdf") return "pdf";
+  return "photo"; // fallback for unknown types
+}
+
 /** Generates a WhatsApp deep-link URL with a pre-filled message. */
 export function generateWhatsAppLink(
   phone: string,

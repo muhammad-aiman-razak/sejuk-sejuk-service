@@ -44,13 +44,31 @@ export function Navbar() {
     setIsMobileMenuOpen(false);
   }
 
+  const roleSwitcher = (
+    <div className="relative">
+      <select
+        value={currentUser.id}
+        onChange={(e) => handleUserSwitch(e.target.value)}
+        className="w-full appearance-none rounded-md border border-gray-300 bg-white py-1.5 pl-3 pr-8 text-sm font-medium text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+      >
+        {SEED_USERS.map((user) => (
+          <option key={user.id} value={user.id}>
+            {user.name} ({user.role})
+          </option>
+        ))}
+      </select>
+      <ChevronDown className="pointer-events-none absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+    </div>
+  );
+
   return (
     <nav className="border-b bg-white">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           {/* Left: App name */}
-          <Link href="/" className="text-lg font-semibold text-gray-900">
-            Sejuk Sejuk Service Portal
+          <Link href="/" className="shrink-0 text-lg font-semibold text-gray-900">
+            <span className="sm:hidden">Sejuk Sejuk</span>
+            <span className="hidden sm:inline">Sejuk Sejuk Service Portal</span>
           </Link>
 
           {/* Center: Desktop nav links */}
@@ -71,23 +89,10 @@ export function Navbar() {
             ))}
           </div>
 
-          {/* Right: Role switcher + mobile hamburger */}
+          {/* Right: Desktop role switcher + mobile hamburger */}
           <div className="flex items-center gap-3">
-            {/* Role switcher dropdown */}
-            <div className="relative">
-              <select
-                value={currentUser.id}
-                onChange={(e) => handleUserSwitch(e.target.value)}
-                className="appearance-none rounded-md border border-gray-300 bg-white py-1.5 pl-3 pr-8 text-sm font-medium text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              >
-                {SEED_USERS.map((user) => (
-                  <option key={user.id} value={user.id}>
-                    {user.name} ({user.role})
-                  </option>
-                ))}
-              </select>
-              <ChevronDown className="pointer-events-none absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-            </div>
+            {/* Role switcher — desktop only */}
+            <div className="hidden md:block">{roleSwitcher}</div>
 
             {/* Mobile hamburger */}
             <button
@@ -105,7 +110,7 @@ export function Navbar() {
         </div>
       </div>
 
-      {/* Mobile nav links */}
+      {/* Mobile menu — nav links + role switcher */}
       {isMobileMenuOpen && (
         <div className="border-t md:hidden">
           <div className="space-y-1 px-4 py-3">
@@ -124,6 +129,13 @@ export function Navbar() {
                 {link.label}
               </Link>
             ))}
+
+            <div className="mt-2 border-t pt-3">
+              <p className="mb-2 px-3 text-xs font-medium uppercase tracking-wider text-gray-500">
+                Switch User
+              </p>
+              {roleSwitcher}
+            </div>
           </div>
         </div>
       )}
