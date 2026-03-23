@@ -5,7 +5,7 @@ import type {
 } from "groq-sdk/resources/chat/completions";
 import { executeFunction } from "@/lib/ai/executor";
 
-const GROQ_MODEL = "llama-3.3-70b-versatile";
+const GROQ_MODEL = "llama-3.1-8b-instant";
 
 /** Tool declarations in OpenAI/Groq format. */
 const GROQ_TOOLS: ChatCompletionTool[] = [

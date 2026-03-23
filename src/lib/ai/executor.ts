@@ -108,7 +108,14 @@ async function getTechnicianPerformance(args: Args): Promise<ExecutorResult> {
     .order("jobs_completed", { ascending: false });
 
   if (args.weekStart) {
-    query = query.eq("week_start", String(args.weekStart));
+    // The LLM passes a date like "2026-03-24" but the KPI view's week_start
+    // may differ by a day due to MYT timezone truncation. Find the week that
+    // contains the given date by checking a 7-day window backwards.
+    const date = new Date(String(args.weekStart));
+    const weekBefore = new Date(date.getTime() - 7 * 24 * 60 * 60 * 1000);
+    query = query
+      .gte("week_start", weekBefore.toISOString().split("T")[0])
+      .lte("week_start", date.toISOString().split("T")[0] + "T23:59:59");
   }
 
   const { data, error } = await query;
