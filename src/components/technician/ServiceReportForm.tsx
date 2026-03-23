@@ -213,11 +213,14 @@ export function ServiceReportForm({ order }: ServiceReportFormProps) {
         <span className="font-mono text-sm font-medium">{order.order_no}</span>
         <Badge status={order.status} />
       </div>
-      <dl className="mt-3 space-y-2 text-sm">
+      <dl className="mt-3 space-y-3 text-sm">
         <div>
           <dt className="text-gray-500">Customer</dt>
           <dd className="font-medium text-gray-900">{order.customer_name}</dd>
-          <dd className="text-gray-500">{order.customer_phone}</dd>
+        </div>
+        <div>
+          <dt className="text-gray-500">Phone</dt>
+          <dd className="text-gray-900">{order.customer_phone}</dd>
         </div>
         <div>
           <dt className="text-gray-500">Address</dt>
@@ -420,6 +423,7 @@ export function ServiceReportForm({ order }: ServiceReportFormProps) {
           value={formData.extraCharges}
           onChange={(e) => handleChange("extraCharges", e.target.value)}
           error={fieldErrors.extraCharges}
+          placeholder="e.g., 50.00"
         />
 
         <div className="flex justify-between rounded-md bg-blue-50 px-3 py-2 text-sm">
@@ -458,6 +462,7 @@ export function ServiceReportForm({ order }: ServiceReportFormProps) {
               step="0.01"
               value={formData.paymentAmount}
               onChange={(e) => handleChange("paymentAmount", e.target.value)}
+              placeholder="e.g., 250.00"
             />
 
             <Select

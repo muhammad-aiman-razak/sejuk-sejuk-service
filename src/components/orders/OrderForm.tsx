@@ -118,6 +118,7 @@ export function OrderForm({ serviceTypes, technicians }: OrderFormProps) {
           value={formData.customerName}
           onChange={(e) => handleChange("customerName", e.target.value)}
           error={fieldErrors.customerName}
+          placeholder="e.g., Ahmad bin Hassan"
           required
         />
 
@@ -127,6 +128,7 @@ export function OrderForm({ serviceTypes, technicians }: OrderFormProps) {
           value={formData.customerPhone}
           onChange={(e) => handleChange("customerPhone", e.target.value)}
           error={fieldErrors.customerPhone}
+          placeholder="e.g., 012-3456789"
           required
         />
       </div>
@@ -136,6 +138,7 @@ export function OrderForm({ serviceTypes, technicians }: OrderFormProps) {
         value={formData.address}
         onChange={(e) => handleChange("address", e.target.value)}
         error={fieldErrors.address}
+        placeholder="e.g., No. 12, Jalan Sejuk, Shah Alam"
         required
       />
 
@@ -144,6 +147,7 @@ export function OrderForm({ serviceTypes, technicians }: OrderFormProps) {
         value={formData.problemDescription}
         onChange={(e) => handleChange("problemDescription", e.target.value)}
         error={fieldErrors.problemDescription}
+        placeholder="e.g., Aircond not cooling, making noise"
         required
       />
 
@@ -183,7 +187,7 @@ export function OrderForm({ serviceTypes, technicians }: OrderFormProps) {
           onChange={(e) => handleChange("technicianId", e.target.value)}
           error={fieldErrors.technicianId}
         >
-          <option value="">No technician (status: New)</option>
+          <option value="">No technician (New)</option>
           {technicians.map((t) => (
             <option key={t.id} value={t.id}>
               {t.name}

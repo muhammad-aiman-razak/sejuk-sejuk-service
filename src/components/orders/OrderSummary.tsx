@@ -59,13 +59,19 @@ export function OrderSummary({
             <dd className="mt-1 text-sm text-gray-900">
               {order.customer_name}
             </dd>
-            <dd className="text-sm text-gray-500">{order.customer_phone}</dd>
+          </div>
+
+          <div>
+            <dt className="text-sm font-medium text-gray-500">Phone</dt>
+            <dd className="mt-1 text-sm text-gray-900">
+              {order.customer_phone}
+            </dd>
           </div>
 
           <div>
             <dt className="text-sm font-medium text-gray-500">Service Type</dt>
             <dd className="mt-1 text-sm text-gray-900">
-              {serviceType?.name ?? "—"}
+              {serviceType?.name ?? "-"}
             </dd>
           </div>
 

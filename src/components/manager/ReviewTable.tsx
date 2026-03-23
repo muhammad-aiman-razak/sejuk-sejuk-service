@@ -29,8 +29,8 @@ export function ReviewTable({ orders }: ReviewTableProps) {
                 <th className="px-4 py-3">Customer</th>
                 <th className="px-4 py-3">Technician</th>
                 <th className="px-4 py-3">Service Type</th>
-                <th className="px-4 py-3">Final Amount</th>
-                <th className="px-4 py-3">Status</th>
+                <th className="px-4 py-3 text-right">Final Amount</th>
+                <th className="w-28 px-4 py-3 text-center">Status</th>
                 <th className="px-4 py-3">Updated</th>
               </tr>
             </thead>
@@ -51,16 +51,16 @@ export function ReviewTable({ orders }: ReviewTableProps) {
                     </div>
                   </td>
                   <td className="px-4 py-3 text-gray-700">
-                    {order.technician_name ?? "—"}
+                    {order.technician_name ?? "-"}
                   </td>
                   <td className="px-4 py-3 text-gray-700">
                     {order.service_type}
                   </td>
-                  <td className="px-4 py-3 font-medium text-gray-900">
+                  <td className="px-4 py-3 text-right font-medium text-gray-900">
                     {formatCurrency(order.final_amount)}
                   </td>
-                  <td className="px-4 py-3">
-                    <Badge status={order.status} />
+                  <td className="w-28 px-4 py-3 text-center">
+                    <Badge status={order.status} className="w-full" />
                   </td>
                   <td className="whitespace-nowrap px-4 py-3 text-gray-500">
                     {formatDate(order.updated_at)}
@@ -91,7 +91,7 @@ export function ReviewTable({ orders }: ReviewTableProps) {
                 {order.customer_name}
               </div>
               <div className="mt-1 flex items-center justify-between text-xs text-gray-500">
-                <span>{order.technician_name ?? "—"}</span>
+                <span>{order.technician_name ?? "-"}</span>
                 <span className="font-medium text-gray-700">
                   {formatCurrency(order.final_amount)}
                 </span>

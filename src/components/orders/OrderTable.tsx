@@ -3,7 +3,7 @@ import type { OrderDetails, Technician } from "@/types";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { AssignTechnicianDialog } from "./AssignTechnicianDialog";
-import { formatDate } from "@/lib/utils";
+import { formatCurrency, formatDate } from "@/lib/utils";
 
 interface OrderTableProps {
   orders: OrderDetails[];
@@ -37,7 +37,8 @@ export function OrderTable({ orders, technicians }: OrderTableProps) {
                 <th className="px-4 py-3">Customer</th>
                 <th className="px-4 py-3">Service Type</th>
                 <th className="px-4 py-3">Technician</th>
-                <th className="px-4 py-3">Status</th>
+                <th className="w-28 px-4 py-3 text-center">Status</th>
+                <th className="px-4 py-3 text-right">Amount</th>
                 <th className="px-4 py-3">Scheduled</th>
                 <th className="px-4 py-3">Created</th>
               </tr>
@@ -45,16 +46,16 @@ export function OrderTable({ orders, technicians }: OrderTableProps) {
             <tbody className="divide-y">
               {orders.map((order) => (
                 <tr key={order.id} className="hover:bg-gray-50">
-                  <td className="whitespace-nowrap px-4 py-3 font-mono text-sm">
-                    {order.order_no}
+                  <td className="whitespace-nowrap px-4 py-3">
+                    <Link
+                      href={`/admin/orders/${order.id}`}
+                      className="font-mono text-sm font-medium text-blue-600 hover:text-blue-700"
+                    >
+                      {order.order_no}
+                    </Link>
                   </td>
-                  <td className="px-4 py-3">
-                    <div className="font-medium text-gray-900">
-                      {order.customer_name}
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      {order.customer_phone}
-                    </div>
+                  <td className="px-4 py-3 font-medium text-gray-900">
+                    {order.customer_name}
                   </td>
                   <td className="px-4 py-3 text-gray-700">
                     {order.service_type}
@@ -63,6 +64,9 @@ export function OrderTable({ orders, technicians }: OrderTableProps) {
                     {order.status === "new" && technicians ? (
                       <AssignTechnicianDialog
                         orderId={order.id}
+                        orderNo={order.order_no}
+                        customerName={order.customer_name}
+                        serviceType={order.service_type}
                         technicians={technicians}
                       />
                     ) : (
@@ -71,13 +75,16 @@ export function OrderTable({ orders, technicians }: OrderTableProps) {
                       )
                     )}
                   </td>
-                  <td className="px-4 py-3">
-                    <Badge status={order.status} />
+                  <td className="w-28 px-4 py-3 text-center">
+                    <Badge status={order.status} className="w-full" />
+                  </td>
+                  <td className="whitespace-nowrap px-4 py-3 text-right font-medium text-gray-900">
+                    {formatCurrency(order.final_amount)}
                   </td>
                   <td className="whitespace-nowrap px-4 py-3 text-gray-500">
                     {order.scheduled_at
                       ? formatDate(order.scheduled_at)
-                      : "—"}
+                      : "-"}
                   </td>
                   <td className="whitespace-nowrap px-4 py-3 text-gray-500">
                     {formatDate(order.created_at)}
@@ -110,6 +117,9 @@ export function OrderTable({ orders, technicians }: OrderTableProps) {
               <div className="mt-2">
                 <AssignTechnicianDialog
                   orderId={order.id}
+                  orderNo={order.order_no}
+                  customerName={order.customer_name}
+                  serviceType={order.service_type}
                   technicians={technicians}
                 />
               </div>

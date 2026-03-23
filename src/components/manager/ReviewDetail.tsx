@@ -7,7 +7,8 @@ import Image from "next/image";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { reviewOrder, closeOrder } from "@/app/actions/manager";
-import { formatCurrency, formatDate } from "@/lib/utils";
+import { formatCurrency, formatDate, getStatusLabel } from "@/lib/utils";
+import type { OrderStatus } from "@/types";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -15,6 +16,7 @@ import { Textarea } from "@/components/ui/Textarea";
 import type { OrderDetails, ServiceAttachment, AuditLog } from "@/types";
 import {
   ArrowLeft,
+  ArrowRight,
   CheckCircle,
   FileText,
   Film,
@@ -81,8 +83,8 @@ export function ReviewDetail({
         Back to Reviews
       </Link>
 
-      {/* Order & Service Report Summary */}
-      <Card className="mb-6">
+      {/* Card 1: Order Information */}
+      <Card className="mb-4">
         <div className="flex items-center justify-between">
           <span className="font-mono text-sm font-medium">
             {order.order_no}
@@ -90,20 +92,30 @@ export function ReviewDetail({
           <Badge status={order.status} />
         </div>
 
-        <dl className="mt-4 space-y-3 text-sm">
+        <dl className="mt-4 space-y-4 text-sm">
           <div className="grid grid-cols-2 gap-4">
             <div>
               <dt className="text-gray-500">Customer</dt>
               <dd className="font-medium text-gray-900">
                 {order.customer_name}
               </dd>
-              <dd className="text-gray-500">{order.customer_phone}</dd>
             </div>
+            <div>
+              <dt className="text-gray-500">Phone</dt>
+              <dd className="text-gray-900">{order.customer_phone}</dd>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
             <div>
               <dt className="text-gray-500">Technician</dt>
               <dd className="font-medium text-gray-900">
-                {order.technician_name ?? "—"}
+                {order.technician_name ?? "-"}
               </dd>
+            </div>
+            <div>
+              <dt className="text-gray-500">Service Type</dt>
+              <dd className="text-gray-900">{order.service_type}</dd>
             </div>
           </div>
 
@@ -112,105 +124,113 @@ export function ReviewDetail({
             <dd className="text-gray-900">{order.address}</dd>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <dt className="text-gray-500">Service Type</dt>
-              <dd className="text-gray-900">{order.service_type}</dd>
-            </div>
-            <div>
-              <dt className="text-gray-500">Quoted Price</dt>
-              <dd className="text-gray-900">
-                {formatCurrency(order.quoted_price)}
-              </dd>
-            </div>
+          <div>
+            <dt className="text-gray-500">Quoted Price</dt>
+            <dd className="font-medium text-gray-900">
+              {formatCurrency(order.quoted_price)}
+            </dd>
           </div>
-
-          {/* Service report details */}
-          {order.work_done && (
-            <>
-              <div className="border-t pt-3">
-                <dt className="text-gray-500">Work Done</dt>
-                <dd className="mt-1 text-gray-900">{order.work_done}</dd>
-              </div>
-
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <dt className="text-gray-500">Extra Charges</dt>
-                  <dd className="text-gray-900">
-                    {formatCurrency(order.extra_charges ?? 0)}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-gray-500">Final Amount</dt>
-                  <dd className="font-semibold text-gray-900">
-                    {formatCurrency(order.final_amount)}
-                  </dd>
-                </div>
-                {order.completed_at && (
-                  <div>
-                    <dt className="text-gray-500">Completed</dt>
-                    <dd className="text-gray-900">
-                      {formatDate(order.completed_at)}
-                    </dd>
-                  </div>
-                )}
-              </div>
-
-              {order.technician_remarks && (
-                <div>
-                  <dt className="text-gray-500">Technician Remarks</dt>
-                  <dd className="text-gray-900">
-                    {order.technician_remarks}
-                  </dd>
-                </div>
-              )}
-
-              {order.payment_amount != null && (
-                <div className="grid grid-cols-2 gap-4 border-t pt-3">
-                  <div>
-                    <dt className="text-gray-500">Payment Collected</dt>
-                    <dd className="text-gray-900">
-                      {formatCurrency(order.payment_amount)}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className="text-gray-500">Payment Method</dt>
-                    <dd className="capitalize text-gray-900">
-                      {order.payment_method?.replace("_", " ") ?? "—"}
-                    </dd>
-                  </div>
-                </div>
-              )}
-            </>
-          )}
-
-          {/* Review info (if already reviewed) */}
-          {order.reviewed_at && (
-            <div className="border-t pt-3">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <dt className="text-gray-500">Reviewed By</dt>
-                  <dd className="text-gray-900">
-                    {order.reviewer_name ?? "—"}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-gray-500">Reviewed At</dt>
-                  <dd className="text-gray-900">
-                    {formatDate(order.reviewed_at)}
-                  </dd>
-                </div>
-              </div>
-              {order.review_notes && (
-                <div className="mt-2">
-                  <dt className="text-gray-500">Review Notes</dt>
-                  <dd className="text-gray-900">{order.review_notes}</dd>
-                </div>
-              )}
-            </div>
-          )}
         </dl>
       </Card>
+
+      {/* Card 2: Service Report */}
+      {order.work_done && (
+        <Card className="mb-4">
+          <h3 className="mb-3 text-sm font-semibold text-gray-900">
+            Service Report
+          </h3>
+          <dl className="space-y-4 text-sm">
+            <div>
+              <dt className="text-gray-500">Work Done</dt>
+              <dd className="mt-1 text-gray-900">{order.work_done}</dd>
+            </div>
+
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <dt className="text-gray-500">Extra Charges</dt>
+                <dd className="text-gray-900">
+                  {formatCurrency(order.extra_charges ?? 0)}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-gray-500">Final Amount</dt>
+                <dd className="font-semibold text-gray-900">
+                  {formatCurrency(order.final_amount)}
+                </dd>
+              </div>
+              {order.completed_at && (
+                <div>
+                  <dt className="text-gray-500">Completed</dt>
+                  <dd className="text-gray-900">
+                    {formatDate(order.completed_at)}
+                  </dd>
+                </div>
+              )}
+            </div>
+
+            {order.technician_remarks && (
+              <div>
+                <dt className="text-gray-500">Technician Remarks</dt>
+                <dd className="text-gray-900">{order.technician_remarks}</dd>
+              </div>
+            )}
+          </dl>
+        </Card>
+      )}
+
+      {/* Card 3: Payment */}
+      {order.payment_amount != null && (
+        <Card className="mb-4">
+          <h3 className="mb-3 text-sm font-semibold text-gray-900">
+            Payment
+          </h3>
+          <dl className="grid grid-cols-2 gap-4 text-sm">
+            <div>
+              <dt className="text-gray-500">Amount Collected</dt>
+              <dd className="text-gray-900">
+                {formatCurrency(order.payment_amount)}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-gray-500">Method</dt>
+              <dd className="capitalize text-gray-900">
+                {order.payment_method?.replace("_", " ") ?? "-"}
+              </dd>
+            </div>
+          </dl>
+        </Card>
+      )}
+
+      {/* Card 4: Review */}
+      {order.reviewed_at && (
+        <Card className="mb-6">
+          <h3 className="mb-3 text-sm font-semibold text-gray-900">
+            Review
+          </h3>
+          <dl className="space-y-4 text-sm">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <dt className="text-gray-500">Reviewed By</dt>
+                <dd className="text-gray-900">
+                  {order.reviewer_name ?? "-"}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-gray-500">Reviewed At</dt>
+                <dd className="text-gray-900">
+                  {formatDate(order.reviewed_at)}
+                </dd>
+              </div>
+            </div>
+            {order.review_notes && (
+              <div>
+                <dt className="text-gray-500">Review Notes</dt>
+                <dd className="text-gray-900">{order.review_notes}</dd>
+              </div>
+            )}
+          </dl>
+        </Card>
+      )}
 
       {/* Attachments */}
       <Card className="mb-6">
@@ -220,82 +240,122 @@ export function ReviewDetail({
         {attachments.length === 0 ? (
           <p className="text-sm text-gray-500">No attachments uploaded.</p>
         ) : (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-            {attachments.map((attachment) =>
-              attachment.file_type === "photo" ? (
-                <a
-                  key={attachment.id}
-                  href={attachment.file_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group relative overflow-hidden rounded-lg border"
-                >
-                  <Image
-                    src={attachment.file_url}
-                    alt={attachment.original_name ?? "Attachment"}
-                    width={200}
-                    height={150}
-                    className="h-32 w-full object-cover transition-opacity group-hover:opacity-80"
-                  />
-                </a>
-              ) : (
-                <a
-                  key={attachment.id}
-                  href={attachment.file_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 rounded-lg border p-3 text-sm text-gray-700 transition-colors hover:bg-gray-50"
-                >
-                  {getAttachmentIcon(attachment.file_type)}
-                  <span className="truncate">
-                    {attachment.original_name ?? "File"}
-                  </span>
-                </a>
-              )
-            )}
-          </div>
+          (() => {
+            const photos = attachments.filter((a) => a.file_type === "photo");
+            const documents = attachments.filter((a) => a.file_type !== "photo");
+            const hasBoth = photos.length > 0 && documents.length > 0;
+
+            return (
+              <div className="space-y-4">
+                {photos.length > 0 && (
+                  <div>
+                    {hasBoth && (
+                      <p className="mb-2 text-xs font-medium uppercase tracking-wider text-gray-500">
+                        Photos
+                      </p>
+                    )}
+                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                      {photos.map((attachment) => (
+                        <a
+                          key={attachment.id}
+                          href={attachment.file_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="group relative overflow-hidden rounded-lg border"
+                        >
+                          <Image
+                            src={attachment.file_url}
+                            alt={attachment.original_name ?? "Photo"}
+                            width={200}
+                            height={150}
+                            className="h-32 w-full object-cover transition-opacity group-hover:opacity-80"
+                          />
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {documents.length > 0 && (
+                  <div>
+                    {hasBoth && (
+                      <p className="mb-2 text-xs font-medium uppercase tracking-wider text-gray-500">
+                        Documents
+                      </p>
+                    )}
+                    <div className="space-y-2">
+                      {documents.map((attachment) => (
+                        <a
+                          key={attachment.id}
+                          href={attachment.file_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-3 rounded-lg border p-3 text-sm text-gray-700 transition-colors hover:bg-gray-50"
+                        >
+                          {getAttachmentIcon(attachment.file_type)}
+                          <span className="truncate">
+                            {attachment.original_name ?? "File"}
+                          </span>
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })()
         )}
       </Card>
 
-      {/* Audit Trail */}
+      {/* Activity */}
       <Card className="mb-6">
         <h3 className="mb-3 text-sm font-semibold text-gray-900">
-          Audit Trail
+          Activity
         </h3>
         {auditLogs.length === 0 ? (
-          <p className="text-sm text-gray-500">No audit records.</p>
+          <p className="text-sm text-gray-500">No activity recorded.</p>
         ) : (
-          <div className="space-y-3">
-            {auditLogs.map((log) => (
-              <div
-                key={log.id}
-                className="flex items-start gap-3 text-sm"
-              >
-                <Clock className="mt-0.5 h-4 w-4 shrink-0 text-gray-400" />
-                <div>
-                  <p className="text-gray-900">
-                    <span className="font-medium capitalize">
+          <div className="space-y-4">
+            {auditLogs.map((log) => {
+              const formatValue = (val: string) => {
+                const statuses = [
+                  "new", "assigned", "in_progress",
+                  "job_done", "reviewed", "closed",
+                ];
+                return statuses.includes(val)
+                  ? getStatusLabel(val as OrderStatus)
+                  : val;
+              };
+
+              return (
+                <div
+                  key={log.id}
+                  className="flex items-start gap-3 text-sm"
+                >
+                  <Clock className="mt-0.5 h-4 w-4 shrink-0 text-gray-400" />
+                  <div>
+                    <p className="font-medium capitalize text-gray-900">
                       {log.action.replace("_", " ")}
-                    </span>
+                    </p>
                     {log.old_value && log.new_value && (
-                      <span className="text-gray-500">
-                        {" "}
-                        — {log.old_value} → {log.new_value}
-                      </span>
+                      <p className="flex items-center gap-1 text-gray-500">
+                        {formatValue(log.old_value)}
+                        <ArrowRight className="h-3 w-3" />
+                        {formatValue(log.new_value)}
+                      </p>
                     )}
                     {!log.old_value && log.new_value && (
-                      <span className="text-gray-500">
-                        {" "}
-                        — {log.new_value}
-                      </span>
+                      <p className="text-gray-500">
+                        {formatValue(log.new_value)}
+                      </p>
                     )}
-                  </p>
-                  <p className="text-xs text-gray-400">
-                    {formatDate(log.created_at)}
-                  </p>
+                    <p className="text-xs text-gray-400">
+                      {formatDate(log.created_at)}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </Card>

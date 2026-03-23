@@ -20,7 +20,7 @@ function isStatusBadge(props: BadgeProps): props is StatusBadgeProps {
 
 export function Badge(props: BadgeProps) {
   const baseClasses =
-    "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium";
+    "inline-flex items-center justify-center rounded-md px-2.5 py-1 text-xs font-medium";
 
   if (isStatusBadge(props)) {
     return (
