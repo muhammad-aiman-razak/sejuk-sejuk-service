@@ -53,7 +53,7 @@ export function Navbar() {
       >
         {SEED_USERS.map((user) => (
           <option key={user.id} value={user.id}>
-            {user.name} ({user.role})
+            {user.name}
           </option>
         ))}
       </select>
