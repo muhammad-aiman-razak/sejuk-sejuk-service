@@ -51,11 +51,17 @@ export function Navbar() {
         onChange={(e) => handleUserSwitch(e.target.value)}
         className="w-full appearance-none rounded-md border border-gray-300 bg-white py-1.5 pl-3 pr-8 text-sm font-medium text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
       >
-        {SEED_USERS.map((user) => (
-          <option key={user.id} value={user.id}>
-            {user.name}
-          </option>
-        ))}
+        {SEED_USERS.map((user) => {
+          const hasRole = user.name.includes("(");
+          const label = hasRole
+            ? user.name
+            : `${user.name} (${user.role.charAt(0).toUpperCase() + user.role.slice(1)})`;
+          return (
+            <option key={user.id} value={user.id}>
+              {label}
+            </option>
+          );
+        })}
       </select>
       <ChevronDown className="pointer-events-none absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
     </div>
