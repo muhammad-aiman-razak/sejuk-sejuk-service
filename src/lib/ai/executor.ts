@@ -108,14 +108,33 @@ async function getTechnicianPerformance(args: Args): Promise<ExecutorResult> {
     .order("jobs_completed", { ascending: false });
 
   if (args.weekStart) {
-    // The LLM passes a date like "2026-03-24" but the KPI view's week_start
-    // may differ by a day due to MYT timezone truncation. Find the week that
-    // contains the given date by checking a 7-day window backwards.
-    const date = new Date(String(args.weekStart));
-    const weekBefore = new Date(date.getTime() - 7 * 24 * 60 * 60 * 1000);
-    query = query
-      .gte("week_start", weekBefore.toISOString().split("T")[0])
-      .lte("week_start", date.toISOString().split("T")[0] + "T23:59:59");
+    // LLM date params are hints, not exact values. Map to the nearest
+    // actual week_start in the database (industry standard: normalize
+    // LLM parameters to valid DB values before querying).
+    const target = new Date(String(args.weekStart)).getTime();
+
+    const { data: weeks } = await supabase
+      .from("technician_weekly_kpi")
+      .select("week_start");
+
+    if (weeks && weeks.length > 0) {
+      const uniqueWeeks = [...new Set(weeks.map((w) => w.week_start))];
+      let closest = uniqueWeeks[0];
+      let closestDiff = Math.abs(new Date(closest).getTime() - target);
+
+      for (const ws of uniqueWeeks) {
+        const diff = Math.abs(new Date(ws).getTime() - target);
+        if (diff < closestDiff) {
+          closest = ws;
+          closestDiff = diff;
+        }
+      }
+
+      // Only use the match if it's within 7 days
+      if (closestDiff <= 7 * 24 * 60 * 60 * 1000) {
+        query = query.eq("week_start", closest);
+      }
+    }
   }
 
   const { data, error } = await query;
