@@ -59,7 +59,7 @@ const SEED_USERS: User[] = [
   },
   {
     id: "c1000000-0000-0000-0000-000000000006",
-    name: "Encik Razak (Mgr)",
+    name: "Encik Razak (Manager)",
     email: "razak@sejuksejuk.com",
     role: "manager",
     technician_id: null,

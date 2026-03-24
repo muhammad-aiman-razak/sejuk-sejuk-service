@@ -305,7 +305,7 @@ INSERT INTO users (id, name, email, role, technician_id) VALUES
   ('c1000000-0000-0000-0000-000000000003', 'John',              'john@sejuksejuk.com',    'technician', 'a1000000-0000-0000-0000-000000000002'),
   ('c1000000-0000-0000-0000-000000000004', 'Bala',              'bala@sejuksejuk.com',    'technician', 'a1000000-0000-0000-0000-000000000003'),
   ('c1000000-0000-0000-0000-000000000005', 'Yusoff',            'yusoff@sejuksejuk.com',  'technician', 'a1000000-0000-0000-0000-000000000004'),
-  ('c1000000-0000-0000-0000-000000000006', 'Encik Razak (Mgr)', 'razak@sejuksejuk.com',  'manager',    NULL);
+  ('c1000000-0000-0000-0000-000000000006', 'Encik Razak (Manager)', 'razak@sejuksejuk.com',  'manager',    NULL);
 
 
 -- ==================== ORDER SEED DATA ====================
